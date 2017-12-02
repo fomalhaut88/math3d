@@ -71,6 +71,11 @@ class Vec3:
         c_alpha = item_type(alpha)
         _dll.vec3_rotate(self._arr, n._arr, c_alpha)
 
+    def __neg__(self):
+        res = self.copy()
+        res.invert()
+        return res
+
     def __iadd__(self, other):
         _dll.vec3_add(self._arr, other._arr)
         return self
