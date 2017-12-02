@@ -18,7 +18,7 @@ class TestMat44(Math3dTestCase):
 
     def test_zeros(self):
         m = Mat44()
-        m.zeros()
+        m.set_zeros()
         self.assertMat44Equal(m, Mat44([
             [0.0, 0.0, 0.0, 0.0],
             [0.0, 0.0, 0.0, 0.0],
@@ -28,7 +28,7 @@ class TestMat44(Math3dTestCase):
 
     def test_eye(self):
         m = Mat44()
-        m.eye()
+        m.set_eye()
         self.assertMat44Equal(m, Mat44([
             [1.0, 0.0, 0.0, 0.0],
             [0.0, 1.0, 0.0, 0.0],
@@ -57,7 +57,7 @@ class TestMat44(Math3dTestCase):
         v3 = Vec3(7.0, 3.0, 3.0)
 
         m = Mat44()
-        m.from_3vec3(v1, v2, v3)
+        m.set_from_3vec3(v1, v2, v3)
 
         self.assertMat44Equal(m, Mat44([
             [1.0, 2.0, -1.0, 0.0],
@@ -69,7 +69,7 @@ class TestMat44(Math3dTestCase):
     def test_translation(self):
         v = Vec3(-3.0, 4.0, 2.0)
         m = Mat44()
-        m.translation(v)
+        m.set_translation(v)
         self.assertMat44Equal(m, Mat44([
             [1.0, 0.0, 0.0, -3.0],
             [0.0, 1.0, 0.0, 4.0],
@@ -79,7 +79,7 @@ class TestMat44(Math3dTestCase):
 
     def test_rotation_x(self):
         m = Mat44()
-        m.rotation_x(0.5 * pi)
+        m.set_rotation_x(0.5 * pi)
         self.assertMat44Equal(m, Mat44([
             [1.0, 0.0, 0.0, 0.0],
             [0.0, 0.0, -1.0, 0.0],
@@ -89,7 +89,7 @@ class TestMat44(Math3dTestCase):
 
     def test_rotation_y(self):
         m = Mat44()
-        m.rotation_y(0.5 * pi)
+        m.set_rotation_y(0.5 * pi)
         self.assertMat44Equal(m, Mat44([
             [0.0, 0.0, 1.0, 0.0],
             [0.0, 1.0, 0.0, 0.0],
@@ -99,7 +99,7 @@ class TestMat44(Math3dTestCase):
 
     def test_rotation_z(self):
         m = Mat44()
-        m.rotation_z(0.5 * pi)
+        m.set_rotation_z(0.5 * pi)
         self.assertMat44Equal(m, Mat44([
             [0.0, -1.0, 0.0, 0.0],
             [1.0, 0.0, 0.0, 0.0],
@@ -111,7 +111,7 @@ class TestMat44(Math3dTestCase):
         n = Vec3(1.0, 1.0, 1.0)
         n.normalize()
         m = Mat44()
-        m.rotation(n, 2 * pi / 3)
+        m.set_rotation(n, 2 * pi / 3)
         self.assertMat44Equal(m, Mat44([
             [0.0, 0.0, 1.0, 0.0],
             [1.0, 0.0, 0.0, 0.0],
@@ -121,14 +121,14 @@ class TestMat44(Math3dTestCase):
 
     def test_scale(self):
         m = Mat44()
-        m.scale(1.5)
+        m.set_scale(1.5)
         self.assertMat44Equal(m, Mat44([
             [1.5, 0.0, 0.0, 0.0],
             [0.0, 1.5, 0.0, 0.0],
             [0.0, 0.0, 1.5, 0.0],
             [0.0, 0.0, 0.0, 1.0]
         ]))
-        m.scale(Vec3(1.5, 2.0, 2.5))
+        m.set_scale(Vec3(1.5, 2.0, 2.5))
         self.assertMat44Equal(m, Mat44([
             [1.5, 0.0, 0.0, 0.0],
             [0.0, 2.0, 0.0, 0.0],

@@ -41,6 +41,12 @@ class Vec3:
     def data(self):
         return self._arr
 
+    @property
+    def normalized(self):
+        res = self.copy()
+        res.normalize()
+        return res
+
     def copy(self, target=None):
         if target is None:
             res = self.__class__()
