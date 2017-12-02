@@ -1,16 +1,18 @@
 import ctypes
 
-from . import _dll
+from . import _dll, item_type
 
 
-_dll.vec3_norm2.restype = ctypes.c_float
-_dll.vec3_norm.restype = ctypes.c_float
-_dll.vec3_dot.restype = ctypes.c_float
+_dll.vec3_norm2.restype = item_type
+_dll.vec3_norm.restype = item_type
+_dll.vec3_dot.restype = item_type
 
 
 class Vec3:
+    components = {'x': 0, 'y': 1, 'z': 2}
+
     def __init__(self, x=0.0, y=0.0, z=0.0):
-        self._arr = (ctypes.c_float * 3)(x, y, z)
+        self._arr = (item_type * 3)(x, y, z)
 
     def __repr__(self):
         return str(list(self._arr))
@@ -21,14 +23,34 @@ class Vec3:
     def __setitem__(self, index, value):
         self._arr[index] = value
 
+    def __getattr__(self, key):
+        if key in self.components:
+            index = self.components[key]
+            return self._arr[index]
+        else:
+            return super().__getattr__(key)
+
+    def __setattr__(self, key, value):
+        if key in self.components:
+            index = self.components[key]
+            self._arr[index] = value
+        else:
+            super().__setattr__(key, value)
+
     @property
-    def pointer(self):
+    def data(self):
         return self._arr
 
-    def copy(self):
-        res = self.__class__()
-        _dll.vec3_copy(res._arr, self._arr)
-        return res
+    def copy(self, target=None):
+        if target is None:
+            res = self.__class__()
+            _dll.vec3_copy(res._arr, self._arr)
+            return res
+        else:
+            _dll.vec3_copy(target._arr, self._arr)
+
+    def invert(self):
+        _dll.vec3_invert(self._arr)
 
     def norm2(self):
         return _dll.vec3_norm2(self._arr)
@@ -40,7 +62,7 @@ class Vec3:
         _dll.vec3_normalize(self._arr)
 
     def rotate(self, n, alpha):
-        c_alpha = ctypes.c_float(alpha)
+        c_alpha = item_type(alpha)
         _dll.vec3_rotate(self._arr, n._arr, c_alpha)
 
     def __iadd__(self, other):
@@ -52,12 +74,12 @@ class Vec3:
         return self
 
     def __imul__(self, z):
-        c_z = ctypes.c_float(z)
+        c_z = item_type(z)
         _dll.vec3_mul(self._arr, c_z)
         return self
 
     def __itruediv__(self, z):
-        c_z = ctypes.c_float(1 / z)
+        c_z = item_type(1 / z)
         _dll.vec3_mul(self._arr, c_z)
         return self
 

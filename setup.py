@@ -1,25 +1,23 @@
 from distutils.core import setup
-from setuptools import find_packages
 from pycdll.compiler import Compiler
 
 cpl = Compiler(
     c_dir='c',
-    dll_dir='dll'
+    dll_dir='math3d/dll'
 )
 
 print("compiling C libraries...")
-for clib in cpl.get_clibs():
-    cpl.compile(clib)
+cpl.compile('math3d')
 
-data_files = [
-    ('dll', cpl.collect_local_dlls()),
-]
+package_data = {
+    'math3d': ['dll/' + cpl.get_dllname('math3d')]
+}
 
 setup(
     name='math3d',
     version='1.0',
-    packages=find_packages(),
+    packages=['math3d'],
     license="",
     long_description=open('README.md').read(),
-    data_files=data_files
+    package_data=package_data
 )

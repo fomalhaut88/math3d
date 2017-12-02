@@ -1,28 +1,43 @@
 import ctypes
 
-from . import _dll, Vec3
+from . import _dll, item_type, Vec3
 
 
 class Mat44:
-    def __init__(self):
-        self._data = (ctypes.c_float * 16)()
+    def __init__(self, arr=None):
+        self._data = (item_type * 16)()
+
+        if arr is not None:
+            for i in range(4):
+                for j in range(4):
+                    self[i, j] = arr[i][j]
 
     def __repr__(self):
-        s = ''
-        for j in range(4):
-            for i in range(4):
-                s += ' ' + str(self._data[4 * j + i])
+        s = '['
+        for i in range(4):
+            for j in range(4):
+                s += str(self[i, j]) + ' '
             s += '\n'
+        s = s[:-1] + ']'
         return s
 
+    def __getitem__(self, ij):
+        return self._data[4 * ij[0] + ij[1]]
+
+    def __setitem__(self, ij, value):
+        self._data[4 * ij[0] + ij[1]] = value
+
     @property
-    def pointer(self):
+    def data(self):
         return self._data
 
-    def copy(self):
-        res = self.__class__()
-        _dll.mat_copy(res._data, self._data)
-        return res
+    def copy(self, target=None):
+        if target is None:
+            res = self.__class__()
+            _dll.mat_copy(res._data, self._data)
+            return res
+        else:
+            _dll.mat_copy(target._data, self._data)
 
     def transpose(self):
         _dll.mat_transpose(self._data)
@@ -34,14 +49,14 @@ class Mat44:
             return res
         else:
             res = self.copy()
-            c_z = ctypes.c_float(other)
+            c_z = item_type(other)
             _dll.mat_mul_scalar(res._data, c_z)
             return res
 
     __rmul__ = __mul__
 
     def __itruediv__(self, z):
-        c_z = ctypes.c_float(1.0 / z)
+        c_z = item_type(1.0 / z)
         _dll.mat_mul_scalar(self._data, c_z)
         return self
 
@@ -70,91 +85,59 @@ class Mat44:
 
     def mul_pos(self, pos):
         res = Vec3()
-        _dll.mat_mul_pos(res._arr, pos._arr, self._data)
+        _dll.mat_mul_pos(res.data, pos.data, self._data)
         return res
 
     def mul_dir(self, dir):
         res = Vec3()
-        _dll.mat_mul_dir(res._arr, dir._arr, self._data)
+        _dll.mat_mul_dir(res.data, dir.data, self._data)
         return res
 
-    @classmethod
-    def zeros(cls):
-        res = cls()
-        _dll.mat_zeros(res._data)
-        return res
+    def zeros(self):
+        _dll.mat_zeros(self._data)
 
-    @classmethod
-    def eye(cls):
-        res = cls()
-        _dll.mat_eye(res._data)
-        return res
+    def eye(self):
+        _dll.mat_eye(self._data)
 
-    @classmethod
-    def from_3vec3(cls, v1, v2, v3):
-        res = cls()
-        _dll.mat_from_3vec3(res._data, v1._arr, v2._arr, v3._arr)
-        return res
+    def from_3vec3(self, v1, v2, v3):
+        _dll.mat_from_3vec3(self._data, v1.data, v2.data, v3.data)
 
-    @classmethod
-    def translation(cls, v):
-        res = cls()
-        _dll.mat_translation(res._data, v._arr)
-        return res
+    def translation(self, v):
+        _dll.mat_translation(self._data, v.data)
 
-    @classmethod
-    def rotate_x(cls, angle):
-        c_angle = ctypes.c_float(angle)
-        res = cls()
-        _dll.mat_rotate_x(res._data, c_angle)
-        return res
+    def rotation_x(self, angle):
+        c_angle = item_type(angle)
+        _dll.mat_rotation_x(self._data, c_angle)
 
-    @classmethod
-    def rotate_y(cls, angle):
-        c_angle = ctypes.c_float(angle)
-        res = cls()
-        _dll.mat_rotate_y(res._data, c_angle)
-        return res
+    def rotation_y(self, angle):
+        c_angle = item_type(angle)
+        _dll.mat_rotation_y(self._data, c_angle)
 
-    @classmethod
-    def rotate_z(cls, angle):
-        c_angle = ctypes.c_float(angle)
-        res = cls()
-        _dll.mat_rotate_z(res._data, c_angle)
-        return res
+    def rotation_z(self, angle):
+        c_angle = item_type(angle)
+        _dll.mat_rotation_z(self._data, c_angle)
 
-    @classmethod
-    def rotate(cls, n, angle):
-        c_angle = ctypes.c_float(angle)
-        res = cls()
-        _dll.mat_rotate(res._data, n._arr, c_angle)
-        return res
+    def rotation(self, n, angle):
+        c_angle = item_type(angle)
+        _dll.mat_rotation(self._data, n.data, c_angle)
 
-    @classmethod
-    def scale(cls, scl):
-        c_scl = ctypes.c_float(scl)
-        res = cls()
-        _dll.mat_scale(res._data, c_scl)
-        return res
+    def scale(self, vec3_or_scalar):
+        if not isinstance(vec3_or_scalar, Vec3):
+            vec3_or_scalar = Vec3(vec3_or_scalar, vec3_or_scalar, vec3_or_scalar)
+        _dll.mat_scale(self._data, vec3_or_scalar.data)
 
-    @classmethod
-    def projection(cls, width, height, z_near, z_far):
-        c_width = ctypes.c_float(width)
-        c_height = ctypes.c_float(height)
-        c_z_near = ctypes.c_float(z_near)
-        c_z_far = ctypes.c_float(z_far)
+    def projection(self, width, height, z_near, z_far):
+        c_width = item_type(width)
+        c_height = item_type(height)
+        c_z_near = item_type(z_near)
+        c_z_far = item_type(z_far)
 
-        res = cls()
-        _dll.mat_projection(res._data, c_width, c_height, c_z_near, c_z_far)
-        return res
+        _dll.mat_projection(self._data, c_width, c_height, c_z_near, c_z_far)
 
-    @classmethod
-    def perspective(cls, wh, tn, z_near, z_far):
-        c_wh = ctypes.c_float(wh)
-        c_tn = ctypes.c_float(tn)
-        c_z_near = ctypes.c_float(z_near)
-        c_z_far = ctypes.c_float(z_far)
+    def perspective(self, wh, tn, z_near, z_far):
+        c_wh = item_type(wh)
+        c_tn = item_type(tn)
+        c_z_near = item_type(z_near)
+        c_z_far = item_type(z_far)
 
-        res = cls()
-        _dll.mat_perspective(res._data, c_wh, c_tn, c_z_near, c_z_far)
-        return res
+        _dll.mat_perspective(self._data, c_wh, c_tn, c_z_near, c_z_far)
