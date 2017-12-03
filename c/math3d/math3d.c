@@ -248,9 +248,9 @@ void mat_perspective(mat44 m, double wh, double tn, double z_near, double z_far)
 
     m[0] = 1.0 / (wh * tn);
     m[5] = 1.0 / tn;
-    m[10] = -(z_far + z_near) / (z_far - z_near);
+    m[10] = (z_far + z_near) / (z_far - z_near);
     m[11] = -2.0 * z_far * z_near / (z_far - z_near);
-    m[14] = -1.0;
+    m[14] = 1.0;
 }
 
 
