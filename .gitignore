@@ -5,5 +5,5 @@ __pycache__
 
 build
 dist
-dll/*
-!dll/.gitkeep
+math3d/dll/*
+!math3d/dll/.gitkeep
