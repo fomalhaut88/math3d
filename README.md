@@ -29,3 +29,26 @@
 10. Setting matrix as a scale operator
 11. Setting matrix as a projection operator
 12. Setting matrix as a perspective operator
+
+## Installation
+
+Make sure you have `pycdll` installed. If not:
+
+    pip install git+https://github.com/fomalhaut88/pycdll.git
+
+After that you can install `math3d`:
+
+    pip install git+https://github.com/fomalhaut88/math3d.git
+
+## Example
+
+```python
+    from math3d import Vec3, Mat44
+
+    p = Vec3(1, -2, 3)
+    n = Vec3(1, 1, 1).normalized
+    mat = Mat44.eye()
+    mat.set_rotation(n, angle=0.5)
+    p2 = mat.mul_pos(p)
+    print(p2)  # [2.3431765061443803, -2.227146425913363, 1.8839699197689825]
+```
